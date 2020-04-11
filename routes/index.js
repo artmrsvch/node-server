@@ -1,11 +1,18 @@
 const express = require("express");
 const router = express.Router();
+
 const authMiddleware = require('../middleware/auth')
+const profileMiddleware = require('../middleware/profile')
+const verifyAccessToken = require('../middleware/verifyAccessToken')
 
-const auth = require('../controllers/auth')
+const authController = require('../controllers/auth')
+const profileController = require('../controllers/profile')
 
-router.post("/registration", authMiddleware.registration, auth.register);
-router.post("/login", authMiddleware.login, auth.login)
-router.post("/refresh-token", auth.refreshToken)
+router.post("/registration", authMiddleware.registration, authController.register);
+router.post("/login", authMiddleware.login, authController.login)
+router.post("/refresh-token", authMiddleware.getTokens, authController.refreshToken)
+
+router.get('/profile', verifyAccessToken.verify, profileController.getUserProfile)
+router.patch('/profile', verifyAccessToken.verify, profileMiddleware.filterFields, profileController.updateUserProfile)
 
 module.exports = router;

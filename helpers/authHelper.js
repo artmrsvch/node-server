@@ -1,9 +1,8 @@
-const uuid = require('uuid')
 const { tokens, secret } = require('../config/index').jwt
 const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose')
 
-const Token = mongoose.model('Token');
+const User = mongoose.model('User');
 
 const generateAccessToken = (userId) => {
     const payload = {
@@ -17,30 +16,28 @@ const generateAccessToken = (userId) => {
     }
 }
 
-const generateRefreshToken = () => {
+const generateRefreshToken = (userId) => {
     const payload = {
-        id: uuid.v4(),
+        userId,
         type: tokens.refresh.type
     }
     const options = { expiresIn: tokens.refresh.expiresIn }
 
     return {
-        id: payload.id,
         refreshToken: jwt.sign(payload, secret, options),
         refreshTokenExpiredAt: tokens.refresh.expiresIn
     }
 }
 
-const replaceDbRefreshToken = (tokenId, userId) => {
-    Token.findOneAndRemove({ userId })
-        .exec()
-        .then(() => Token.create({ tokenId, userId }))
+const replaceDbRefreshToken = (refreshToken, userId) => {
+    return User.findOneAndUpdate({ _id: userId }, { refreshToken })
 }
 const generateTokens = (userId) => {
-    return {
+    const tokenObj = {
         ...generateAccessToken(userId),
-        ...generateRefreshToken()
+        ...generateRefreshToken(userId)
     }
+    return tokenObj
 }
 module.exports = {
     generateAccessToken,
