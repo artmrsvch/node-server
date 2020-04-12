@@ -22,6 +22,8 @@ const parseFormData = reqeust => {
 
                 fs.rename(files.avatar.path, fileName, err => {
                     err && reject(err);
+
+                    reqeust.imageType = files.avatar.type
                     resolve({
                         image: path.join(upload, files.avatar.name),
                         ...fields
@@ -42,7 +44,7 @@ const fieldsToRewritten = async (fields, user, res) => {
             } else if (field === 'newPassword') {
                 (fields[field].length < 6)
                     ? res.status(400).json({ message: 'Минимальная длина пароля 6 символов' })
-                    : temp.password = fields[field]
+                    : temp.password = await bcrypt.hash(fields[field], 12)
             }
             else {
                 temp[field] = fields[field]

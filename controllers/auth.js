@@ -4,6 +4,7 @@ const { validationResult } = require('express-validator')
 const bcrypt = require('bcryptjs')
 
 const authHelper = require('../helpers/authHelper')
+const toBase64 = require('../helpers/encodeBase64')
 
 const updateTokens = async (userId) => {
     const tokens = authHelper.generateTokens(userId)
@@ -76,6 +77,8 @@ module.exports = {
             }
 
             const tokens = await updateTokens(user._id)
+            const image = user.image ? await toBase64.encode(user.image) : null
+
             const responce = {
                 id: user._id,
                 username: user.username,
@@ -83,7 +86,7 @@ module.exports = {
                 firstName: user.firstName,
                 middleName: user.middleName,
                 permission: user.permission,
-
+                image
             }
             res.json({ ...responce, ...tokens })
 
