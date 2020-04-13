@@ -2,12 +2,14 @@ const express = require('express')
 const path = require("path")
 const mongoose = require('mongoose')
 const bodyParser = require("body-parser");
+
 const config = require('./config')
 
-
 const app = express()
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
 
 app.use("/api", require("./routes/index"));
 
@@ -25,6 +27,7 @@ async function start() {
     try {
         await mongoose.connect(config.mongooseUrl, {
             useNewUrlParser: true,
+            useFindAndModify: false,
             useUnifiedTopology: true,
             useCreateIndex: true
         })

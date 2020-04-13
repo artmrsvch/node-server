@@ -1,11 +1,16 @@
 const User = require('../models/User')
-const Token = require('../models/Token')
 
 const { validationResult } = require('express-validator')
 const bcrypt = require('bcryptjs')
 
 const authHelper = require('../helpers/authHelper')
+const toBase64 = require('../helpers/encodeBase64')
 
+const updateTokens = async (userId) => {
+    const tokens = authHelper.generateTokens(userId)
+    await authHelper.replaceDbRefreshToken(tokens.refreshToken, userId)
+    return tokens
+}
 
 module.exports = {
     register: async (req, res) => {
@@ -27,12 +32,19 @@ module.exports = {
             }
 
             const hashedPassword = await bcrypt.hash(password, 12)
+
             const userData = { username, password: hashedPassword, surName, firstName, middleName }
-            const user = new User(userData)
+            const permission = {
+                chat: { C: true, D: true, R: true, U: true },
+                news: { C: true, D: true, R: true, U: true },
+                settings: { C: true, D: true, R: true, U: true }
+            };
+
+            const user = new User({ ...userData, permission })
 
             await user.save()
 
-            res.status(201).json({ message: 'Пользователь успешно зарегистрирован', data: { ...userData, password } })
+            res.status(201).json({ ...userData, permission })
 
         } catch (e) {
             console.log(e)
@@ -64,12 +76,19 @@ module.exports = {
                 return res.status(400).json({ message: 'Неверный пароль, попробуйте снова' })
             }
 
-            const tokens = authHelper.generateTokens(user._id)
-            const tokenModel = new Token({ userId: user._id, tokenId: tokens.refreshToken })
+            const tokens = await updateTokens(user._id)
+            const image = user.image ? await toBase64.encode(user.image) : null
 
-            await tokenModel.save()
-            console.log('res', tokens)
-            res.json({ username, ...tokens })
+            const responce = {
+                id: user._id,
+                username: user.username,
+                surName: user.surName,
+                firstName: user.firstName,
+                middleName: user.middleName,
+                permission: user.permission,
+                image
+            }
+            res.json({ ...responce, ...tokens })
 
         } catch (e) {
             console.log(e)
@@ -77,6 +96,20 @@ module.exports = {
         }
     },
     refreshToken: async (req, res) => {
+        const payload = req.payload
+        try {
+            const { refreshToken } = await User.findOne({ _id: payload.userId })
 
+            if (payload.token === refreshToken) {
+                const tokens = await updateTokens(payload.userId)
+                res.json(tokens)
+            } else {
+                return res.status(400).json({ message: 'Token invalid!, ( he-he:) )' })
+            }
+
+        } catch (e) {
+            console.log(e)
+            res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' })
+        }
     }
 }

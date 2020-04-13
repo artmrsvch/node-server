@@ -7,7 +7,7 @@ import {
   usersSelector,
   getUsers,
   updateUserPermission,
-  deleteUser
+  deleteUser,
 } from '../../store/adminPanel';
 import {
   Container,
@@ -19,29 +19,29 @@ import {
   Select,
   FormControl,
   MenuItem,
-  InputLabel
+  InputLabel,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/styles';
 import SettingsFormGroup from './AdminPanelSettingsFormGroup';
 
-const styles = theme => ({
+const styles = (theme) => ({
   wrapper: {
     width: '100%',
     flex: '1 1 100%',
-    paddingTop: '40px'
+    paddingTop: '40px',
   },
   formCard: {
-    padding: theme.spacing(2)
+    padding: theme.spacing(2),
   },
   userSelect: {
-    width: '100%'
+    width: '100%',
   },
   userAvatar: {
-    marginRight: theme.spacing(2)
+    marginRight: theme.spacing(2),
   },
   mb3: {
-    marginBottom: theme.spacing(3)
-  }
+    marginBottom: theme.spacing(3),
+  },
 });
 
 const defaultState = {
@@ -52,21 +52,21 @@ const defaultState = {
       C: true,
       R: true,
       U: false,
-      D: false
+      D: false,
     },
     news: {
       C: true,
       R: true,
       U: false,
-      D: false
+      D: false,
     },
     settings: {
       C: true,
       R: true,
       U: false,
-      D: false
-    }
-  }
+      D: false,
+    },
+  },
 };
 
 class AdminPanel extends PureComponent {
@@ -77,24 +77,24 @@ class AdminPanel extends PureComponent {
     dispatch(getUsers());
   }
 
-  handleChange = part => partRule => event => {
+  handleChange = (part) => (partRule) => (event) => {
     const { checked } = event.target;
     const { permission } = this.state;
     this.setState({
       permission: {
         ...permission,
-        [part]: { ...permission[part], [partRule]: checked }
-      }
+        [part]: { ...permission[part], [partRule]: checked },
+      },
     });
   };
-  handleChangeUser = event => {
+  handleChangeUser = (event) => {
     const { users } = this.props;
     const { value } = event.target;
-    const selectedUser = value ? _cloneDeep(users.find(u => u.id === value)) : null;
+    const selectedUser = value ? _cloneDeep(users.find((u) => u.id === value)) : null;
     this.setState({
       selectedUserId: value,
       selectedUser,
-      permission: selectedUser.permission
+      permission: selectedUser ? selectedUser.permission : null,
     });
   };
 
@@ -107,11 +107,11 @@ class AdminPanel extends PureComponent {
   cancelHandler = () => {
     const { users } = this.props;
     const { selectedUserId } = this.state;
-    const selectedUser = _cloneDeep(users.find(u => u.id === selectedUserId));
+    const selectedUser = _cloneDeep(users.find((u) => u.id === selectedUserId));
     selectedUserId &&
       this.setState({
         selectedUser,
-        permission: selectedUser.permission
+        permission: selectedUser.permission,
       });
   };
 
@@ -131,13 +131,12 @@ class AdminPanel extends PureComponent {
             <Grid container wrap="nowrap" alignItems="center" className={classes.mb3}>
               <Avatar
                 src={(selectedUser && selectedUser.image) || '/assets/img/no-user-image.png'}
-                className={classes.userAvatar}
-              ></Avatar>
+                className={classes.userAvatar}></Avatar>
               <FormControl className={classes.userSelect}>
                 <InputLabel htmlFor="age-simple">Выберите пользователя</InputLabel>
                 <Select value={selectedUserId} onChange={this.handleChangeUser}>
                   <MenuItem value={null}>Не выбран</MenuItem>
-                  {users.map(user => (
+                  {users.map((user) => (
                     <MenuItem value={user.id} key={user.id}>
                       {user.username}
                     </MenuItem>
@@ -197,12 +196,9 @@ class AdminPanel extends PureComponent {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   isLoading: isLoadingUsersSelector(state),
-  users: usersSelector(state)
+  users: usersSelector(state),
 });
 
-export default compose(
-  withStyles(styles),
-  connect(mapStateToProps)
-)(AdminPanel);
+export default compose(withStyles(styles), connect(mapStateToProps))(AdminPanel);
