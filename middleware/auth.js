@@ -22,12 +22,10 @@ module.exports = {
             payload = jwt.verify(token, secret)
             if (payload.type !== 'refresh') {
                 res.status(400).json({ message: 'Invalid token!' })
+            } else {
+                console.log('REFRESHPAYLOAD', payload)
+                req.payload = { ...payload, token }
             }
-            if (refreshToken === null) {
-                res.status(400).json({ message: 'Invalid token!' })
-            }
-            req.payload = { ...payload, token }
-
         } catch (e) {
             if (e instanceof jwt.TokenExpiredError) {
                 res.status(400).json({ message: 'Token expired!' })
