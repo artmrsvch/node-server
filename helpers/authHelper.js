@@ -4,29 +4,26 @@ const mongoose = require('mongoose')
 
 const User = mongoose.model('User');
 
-const generateAccessToken = (userId) => {
+function generateAccessToken(userId) {
     const payload = {
         userId,
         type: tokens.access.type
     }
     const options = { expiresIn: tokens.access.expiresIn }
-    return {
-        accessToken: jwt.sign(payload, secret, options),
-        accessTokenExpiredAt: tokens.access.expiresIn,
-    }
+    const token = { accessToken: jwt.sign(payload, secret, options) }
+
+    return { ...token, accessTokenExpiredAt: jwt.verify(token.accessToken, secret).exp * 1000 }
 }
 
-const generateRefreshToken = (userId) => {
+function generateRefreshToken(userId) {
     const payload = {
         userId,
         type: tokens.refresh.type
     }
     const options = { expiresIn: tokens.refresh.expiresIn }
+    const token = { refreshToken: jwt.sign(payload, secret, options) }
 
-    return {
-        refreshToken: jwt.sign(payload, secret, options),
-        refreshTokenExpiredAt: tokens.refresh.expiresIn
-    }
+    return { ...token, refreshTokenExpiredAt: jwt.verify(token.refreshToken, secret).exp * 1000 }
 }
 
 const replaceDbRefreshToken = (refreshToken, userId) => {
