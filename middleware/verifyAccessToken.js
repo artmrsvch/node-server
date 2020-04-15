@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken')
 module.exports = {
     verify: (req, res, next) => {
         try {
-            // userId, type, iat, exp 
             const token = req.headers.authorization
             const payload = jwt.verify(token, secret)
             if (payload.type !== 'access') {
