@@ -16,9 +16,9 @@ app.use(bodyParser.json());
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, 'client', 'build')))
 
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
-    })
+    // app.get('*', (req, res) => {
+    //     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
+    // })
 }
 
 app.use("/api", require("./routes/index"));
@@ -33,7 +33,7 @@ async function start() {
             useUnifiedTopology: true,
             useCreateIndex: true
         })
-        http.listen(config.port, () => {
+        http.listen(process.env.PORT || config.port, () => {
             console.log(`Run na porty ${config.port}`);
         });
     } catch (e) {
