@@ -2,11 +2,12 @@ const fs = require('fs')
 const path = require('path')
 
 const formidable = require("formidable");
+const sharp = require('sharp')
 const bcrypt = require('bcryptjs')
 
 const User = require('../models/User')
 
-const parseFormData = reqeust => {
+const parseFormData = (reqeust, res) => {
     return new Promise((resolve, reject) => {
         const form = new formidable.IncomingForm();
         const upload = path.join("assets", "users");
@@ -15,20 +16,36 @@ const parseFormData = reqeust => {
 
         form.parse(reqeust, (err, fields, files) => {
             err && reject(err);
-            if ("avatar" in fields) {
-                resolve({ ...fields, avatar: null });
+            if (files.avatar.size > 2000000) res.status(401).json({ message: 'Размер файла не должен превышать 2MB' })
+            if (files.avatar.type !== 'image/jpeg' || files.avatar.type !== 'image/jpg' || files.avatar.type !== 'image/png') {
+                fs.unlink(files.avatar.path)
             } else {
-                const fileName = path.join(upload, files.avatar.name);
+                if (files.avatar.size > 100000) {
+                    sharp(files.avatar.path)
+                        .resize(200, 200)
+                        .toFile(files.avatar.path, (err, info) => {
+                            if (err) {
+                                console.log(err)
+                                return;
+                            }
+                            console.log(info);
+                        })
+                }
+                if ("avatar" in fields) {
+                    resolve({ ...fields, avatar: null });
+                } else {
+                    const fileName = path.join(upload, files.avatar.name);
 
-                fs.rename(files.avatar.path, fileName, err => {
-                    err && reject(err);
+                    fs.rename(files.avatar.path, fileName, err => {
+                        err && reject(err);
 
-                    reqeust.imageType = files.avatar.type
-                    resolve({
-                        image: path.join(upload, files.avatar.name),
-                        ...fields
+                        reqeust.imageType = files.avatar.type
+                        resolve({
+                            image: path.join(upload, files.avatar.name),
+                            ...fields
+                        });
                     });
-                });
+                }
             }
         });
     });
@@ -57,7 +74,7 @@ const fieldsToRewritten = async (fields, user, res) => {
 module.exports = {
     filterFields: async (req, res, next) => {
         try {
-            const data = await parseFormData(req)
+            const data = await parseFormData(req, res)
             const user = await User.findOne({ _id: req.userId })
             const rest = await fieldsToRewritten(data, user, res)
 

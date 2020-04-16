@@ -24,11 +24,20 @@ module.exports = {
 
         } catch (e) {
             console.log(e)
-            res.status(500).json({ message: 'Что-то пошло не так' })
+            res.status(500).json({ message: 'Что-то пошло не так в контроллере getAllUsers', event: e, userlist })
         }
     },
     setPermission: async (req, res) => {
         try {
+            const errors = validationResult(req)
+
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    errors: errors.array(),
+                    message: 'Необходимо указать CRUD'
+                })
+            }
+
             const { id: _id } = req.params
             const { permission } = req.body
 

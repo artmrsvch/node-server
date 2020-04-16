@@ -18,7 +18,7 @@ module.exports = {
                 res.status(400).json({ message: 'Invalid token!' })
                 return
             } else {
-                res.status(500).json({ message: 'Что-то пошло не так' })
+                res.status(500).json({ message: 'Что-то пошло не так при верификации токена' })
             }
         }
         next()

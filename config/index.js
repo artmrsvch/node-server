@@ -1,7 +1,7 @@
 module.exports = {
     port: '8080',
     jwt: {
-        secret: 'pizdecNaxoiBlyat',
+        secret: process.env.SECRET || 'testSecretKey',
         tokens: {
             access: {
                 type: 'access',

@@ -3,6 +3,7 @@ const router = express.Router();
 
 const authMiddleware = require('../middleware/auth')
 const profileMiddleware = require('../middleware/profile')
+const userMiddleware = require('../middleware/user')
 const verifyAccessToken = require('../middleware/verifyAccessToken')
 
 const authController = require('../controllers/auth')
@@ -18,7 +19,7 @@ router.post("/refresh-token", authMiddleware.getTokens, authController.refreshTo
 router.get('/profile', verifyAccessToken.verify, profileController.getUserProfile)
 router.patch('/profile', verifyAccessToken.verify, profileMiddleware.filterFields, profileController.updateUserProfile)
 
-router.get('/users', verifyAccessToken.verify, userController.getAllUsers)
+router.get('/users', verifyAccessToken.verify, userMiddleware.checkPermission, userController.getAllUsers)
 router.patch('/users/:id/permission', verifyAccessToken.verify, userController.setPermission)
 router.delete('/users/:id', verifyAccessToken.verify, userController.deleteUser)
 
