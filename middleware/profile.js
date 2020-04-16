@@ -18,18 +18,24 @@ const parseFormData = (reqeust, res) => {
             err && reject(err);
             if (files.avatar.size > 2000000) res.status(401).json({ message: 'Размер файла не должен превышать 2MB' })
             if (files.avatar.type !== 'image/jpeg' || files.avatar.type !== 'image/jpg' || files.avatar.type !== 'image/png') {
-                fs.unlink(files.avatar.path)
+                fs.unlink(files.avatar.path, err => {
+                    res.status(401).json({ message: 'Файл должен быть формата JPEG/PNG/JPG' })
+                })
             } else {
                 if (files.avatar.size > 100000) {
-                    sharp(files.avatar.path)
-                        .resize(200, 200)
-                        .toFile(files.avatar.path, (err, info) => {
-                            if (err) {
-                                console.log(err)
-                                return;
-                            }
-                            console.log(info);
-                        })
+                    try {
+                        sharp(files.avatar.path)
+                            .resize(200, 200)
+                            .toFile(files.avatar.path, (err, info) => {
+                                if (err) {
+                                    console.log(err)
+                                    return;
+                                }
+                                console.log(info);
+                            })
+                    } catch (e) {
+                        res.status(500).json({ message: 'Что-то пошло не так при сжатии файла' })
+                    }
                 }
                 if ("avatar" in fields) {
                     resolve({ ...fields, avatar: null });
