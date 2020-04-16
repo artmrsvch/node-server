@@ -27,7 +27,7 @@ io.sockets.on('connection', socketHandler)
 
 async function start() {
     try {
-        await mongoose.connect(config.mongooseUrl, {
+        await mongoose.connect(process.env.MONGO_URL, {
             useNewUrlParser: true,
             useFindAndModify: false,
             useUnifiedTopology: true,
