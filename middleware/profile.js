@@ -17,12 +17,8 @@ const parseFormData = (reqeust, res) => {
         form.parse(reqeust, (err, fields, files) => {
             err && reject(err);
             if (files.avatar.size > 2000000) res.status(401).json({ message: 'Размер файла не должен превышать 2MB' })
-            if (files.avatar.type !== 'image/jpeg' || files.avatar.type !== 'image/jpg' || files.avatar.type !== 'image/png') {
-                fs.unlink(files.avatar.path, err => {
-                    res.status(401).json({ message: 'Файл должен быть формата JPEG/PNG/JPG' })
-                })
-            } else {
-                if (files.avatar.size > 100000) {
+            if (files.avatar.type === 'image/jpeg' || files.avatar.type === 'image/jpg' || files.avatar.type === 'image/png') {
+                if (files.avatar.size > 200000) {
                     try {
                         sharp(files.avatar.path)
                             .resize(200, 200)
@@ -52,6 +48,10 @@ const parseFormData = (reqeust, res) => {
                         });
                     });
                 }
+            } else {
+                fs.unlink(files.avatar.path, err => {
+                    res.status(401).json({ message: 'Файл должен быть формата JPEG/PNG/JPG' })
+                })
             }
         });
     });
