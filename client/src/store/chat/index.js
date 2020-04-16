@@ -33,7 +33,7 @@ const users = handleActions(
 
 const messages = handleActions(
   {
-    [appendMessage]: (state, action) =>  [...state, action.payload],
+    [appendMessage]: (state, action) => [...state, action.payload],
     [setRoomHistory]: (state, action) => action.payload,
     [setToZeroMessages]: () => []
   },
@@ -81,7 +81,7 @@ export const connectRoom = ({ userId, socketId }) => (dispatch, getState) => {
   const userProfile = userProfileSelector(getState());
   dispatch(setToZeroMessages())
   dispatch(setSelectedRoom({ recipientId: userId, socketId }))
-  
+
   socket.emit('message:history', { recipientId: userId, userId: userProfile.id })
 }
 

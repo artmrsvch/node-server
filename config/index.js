@@ -1,5 +1,5 @@
 module.exports = {
-    port: '3001',
+    port: '3000',
     mongooseUrl: 'mongodb+srv://artmrsvch:123Mama@cluster0-nuch7.azure.mongodb.net/app?retryWrites=true&w=majority',
     jwt: {
         secret: 'pizdecNaxoiBlyat',
