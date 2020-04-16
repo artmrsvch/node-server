@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { tokensSelector, refreshTokenRequest, logout } from '../store/auth';
 import { openNotification } from '../store/notifications';
-const baseURL = 'http://localhost:3000/api/';
+const baseURL = 'https://serene-brushlands-44188.herokuapp.com/api/';
 const instance = axios.create({ baseURL });
 
 const waitQueue = [];
@@ -15,10 +15,10 @@ const request = ({
   isRefresh,
   isWithoutToken,
   getState = () => ({}),
-  dispatch = () => {}
+  dispatch = () => { }
 }) =>
   new Promise((resolve, reject) => {
-    
+
     const {
       accessToken,
       accessTokenExpiredAt,
